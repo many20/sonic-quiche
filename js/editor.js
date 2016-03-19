@@ -85,16 +85,17 @@ SQEditor = function(config) {
 
 		var timeString = formatTimePart(now.getHours()) + ":" + formatTimePart(now.getMinutes()) + ":" + formatTimePart(now.getSeconds());
 
+		var label;
 		if(level == "error") {
-			var label = "<span class='label error'><i class='fa fa-exclamation-triangle'></i>&nbsp;" + timeString + "</span>";
+			label = "<span class='label error'><i class='fa fa-exclamation-triangle'></i>&nbsp;" + timeString + "</span>";
 		} else if(level == "warn") {
-			var label = "<span class='label secondary'><i class='fa fa-exclamation-triangle'></i>&nbsp;" + timeString + "</span>";
+			label = "<span class='label secondary'><i class='fa fa-exclamation-triangle'></i>&nbsp;" + timeString + "</span>";
 		} else {
-			var label = "<span class='label secondary'>" + timeString + "</span>";
+			label = "<span class='label secondary'>" + timeString + "</span>";
 		}
 
 		$("#" + config.events_id).prepend(
-			"<div class='row'>" + 
+			"<div class='row'>" +
 			"	<div class='small-3 columns'>" +
 			label +
 			"	</div>" +
@@ -125,4 +126,4 @@ SQEditor = function(config) {
 		$("#editor_row").show();
 		$("#" + config.play_id).removeClass("disabled");
 	});
-}
+};

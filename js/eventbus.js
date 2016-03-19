@@ -9,7 +9,7 @@ EventBus = (function(){
 		var newSubscribers = [{
 			id: nextId,
 			subscriber: callback
-		}]
+		}];
 
 		if(action in subscribers) {
 			newSubscribers = newSubscribers.concat(subscribers[action]);
@@ -31,5 +31,5 @@ EventBus = (function(){
 	return {
 		"on": on,
 		"fire": fire
-	}
+	};
 })();

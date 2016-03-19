@@ -1,83 +1,93 @@
 function SQEngine() {
-	var worker_template = null;
-	var workers = {};
-	var code = "";
+    var _worker_template = null;
+    var _workers = {};
+    var _code = "";
 
-	function handleEvent(event) {
-		switch(event.action) {
-			case "complete":
-				delete workers[event.thread_id];
+    function handleEvent(event) {
+        switch (event.action) {
+        case "complete":
+            delete _workers[event.thread_id];
 
-				if($.isEmptyObject(workers)) {
-					EventBus.fire("complete");
-				}
-				break;
+            if ($.isEmptyObject(_workers)) {
+                EventBus.fire("complete");
+            }
+            break;
 
-			case "worker":
-				var newThreadId = event.data;
-				if(!(newThreadId in workers)) {
-					startWorker(newThreadId);
-				}
-				break;
+        case "worker":
+            var newThreadId = event.data;
+            if (!(newThreadId in _workers)) {
+                startWorker(newThreadId);
+            }
+            break;
 
-			case "log":
-			case "warn":
-			case "error":
-				EventBus.fire(event.action, event.data);
-				break;
+        case "log":
+        case "warn":
+        case "error":
+            EventBus.fire(event.action, event.data);
+            break;
 
-			default:
-				EventBus.fire(event.action, {thread_id: event.thread_id, data: event.data});
-		}
-	}
+        default:
+            EventBus.fire(event.action, {
+                thread_id: event.thread_id,
+                data: event.data
+            });
+        }
+    }
 
-	function startWorker(id) {
-		var codeBlob = new Blob([code], {type: "application/javascript"});
-		workers[id] = new Worker(URL.createObjectURL(codeBlob));
-		workers[id].onmessage = function(e) {
-			handleEvent(e.data);
-		}
-		workers[id].postMessage({thread_id: id});
-	}
+    function startWorker(id) {
+        var codeBlob = new Blob([_code], {
+            type: "application/javascript"
+        });
+        _workers[id] = new Worker(URL.createObjectURL(codeBlob));
+        _workers[id].onmessage = function (e) {
+            handleEvent(e.data);
+        };
+        _workers[id].postMessage({
+            thread_id: id
+        });
+    }
 
-	function play(newCode) {
-		stop();
+    function play(newCode) {
+        stop();
 
-		if(worker_template == null) {
-			EventBus.fire("log", "Cannot compile - haven't finished downloading api.rb yet");
-		} else {
-			EventBus.fire("log", "Compiling script");
-			var rawWorkerCode = worker_template.replace("[[code_body]]", newCode);
-			code =
-				'importScripts("http://cdn.opalrb.org/opal/current/opal.min.js");\n' +
-				Opal.compile(rawWorkerCode);
-			
-			EventBus.fire("log", "Running script");
-			EventBus.fire("playing", {});
+        if (_worker_template == null) {
+            EventBus.fire("log", "Cannot compile - haven't finished downloading api.rb yet");
+        } else {
+            EventBus.fire("log", "Compiling script");
 
-			startWorker(0);
-		}
-	}
+            var rawWorkerCode = _worker_template.replace("[[code_body]]", newCode);
+            _code = 'importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/2.0.3/q.min.js");\n' + rawWorkerCode;
 
-	function stop() {
-		$.each(workers, function(_, worker) {
-			worker.terminate();
-		});
+            EventBus.fire("log", "Running script");
+            EventBus.fire("playing", {});
 
-		workers = {}
+            startWorker(0);
+        }
+    }
 
-		EventBus.fire("stopped", {});
-	}
+    function stop() {
+        $.each(_workers, function (_, worker) {
+            worker.terminate();
+        });
 
-	$.get("api.rb", function(code) {
-		worker_template = code;
-	});
+        _workers = {};
 
-	EventBus.on("play", function(code) { play(code); });
-	EventBus.on("stop", function(_) { stop(); });
+        EventBus.fire("stopped", {});
+    }
 
-	return {
-		"play": play,
-		"stop": stop
-	}
+    $.get("api.js", function (code) {
+        _worker_template = code;
+    });
+
+    EventBus.on("play", function (code) {
+        play(code);
+    });
+    EventBus.on("stop", function (_) {
+        stop();
+    });
+
+    return {
+        "play": play,
+        "stop": stop
+    };
 }

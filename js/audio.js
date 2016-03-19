@@ -26,7 +26,7 @@ function SQAudio() {
 		nodes[node_id] = {
 			source: source,
 			endTime: endTimeAfterSample
-		}
+		};
 
 		source.buffer = samples[sample];
 		source.playbackRate.value = rate;
@@ -96,6 +96,8 @@ function SQAudio() {
 		$.get("samples/manifest.json", function(data){
 			EventBus.fire("load_progress", {description: "Loading samples...", progress: 0});
 
+			data = JSON.parse(data);
+
 			var numSamples = data.samples.length;
 			var numLoaded = 0;
 
@@ -115,7 +117,7 @@ function SQAudio() {
 			threads[cmd.thread_id] = {
 				time: ctx.currentTime,
 				queue: []
-			}	
+			};
 		}
 
 		handleCommand(cmd.thread_id, cmd.data);
@@ -155,5 +157,5 @@ function SQAudio() {
 		"freqs": NODE_FREQS,
 		"samples": function() { return samples; },
 		"nodes": function(){ return nodes; }
-	}
+	};
 }
