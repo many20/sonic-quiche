@@ -1,3 +1,5 @@
+importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/1.4.1/q.min.js");
+
 //# Aggregated and modified Sonic Pi API. Original license stated below.
 //#--
 //# This file is part of Sonic Pi: http://sonic-pi.net
@@ -37,6 +39,8 @@ function isUsable(value) {
  * @param {*} value
  * @return {boolean}
  */
+4
+
 function isArray(value) {
     return isUsable(value) && Array.isArray(value); //(value instanceof Array)
 }
@@ -551,15 +555,130 @@ function sample(name, args_h) {
 //     }
 // }
 
-function loop(fn) {
-    var defer = $.Deferred();
+/**
+ * call an function asyncron
+ * use an timer to let the eventloop invoke it.
+ *
+ * @param {function} func - function to invoke
+ * @param {target} target - invoke the function in this context
+ * @param {...} arguments - following arguments
+ * @return {Object} Promis
+ */
+function callAsync(func, target) {
+    target = target || (window || this);
+    var slicedArgs = Array.prototype.slice.call(arguments, 2);
 
-    fn();
-    defer.resolve()
-
-    return defer.promise();
+    setTimeout(function () {
+        func.call(target, slicedArgs);
+    }, 0);
 }
 
+/**
+ * when all
+ *
+ * uses an array of deferreds. normal when can not use an array
+ * return am array with the responses op the deferreds
+ */
+//jQuery.fn.whenAll = function (deferreds) {
+//    var deferred = new jQuery.Deferred();
+//    $.when.apply(jQuery, deferreds)
+//        .then(function () {
+//                var args = arguments;
+//                if (deferreds.length === 1) {
+//                    args = [arguments];
+//                }
+//                deferred.resolve(Array.prototype.slice.call(args));
+//            },
+//            function () {
+//                deferred.reject.apply(this, arguments);
+//            });
+//    return deferred;
+//};
+//
+//var PromisExtensions = (function () {
+//    return {
+//        split: function (splitString) {
+//            return this.then(function (a) {
+//                //console.log(a.split(splitString));
+//                return a.split(splitString);
+//            });
+//        },
+//        each: function (fn) {
+//            return this.then(function (a) {
+//                return _.each(a, fn);
+//            });
+//        },
+//        filter: function (fn) {
+//            return this.then(function (a) {
+//                return _.filter(a, fn);
+//            });
+//        },
+//        map: function (fn) {
+//            return this.then(function (a) {
+//                return _.map(a, fn);
+//            });
+//        },
+//        reduce: function (fn) {
+//            return this.then(function (a) {
+//                return _.reduce(a, fn);
+//            });
+//        },
+//        delay: function (time) {
+//            return this.then(function (a) {
+//                var dfd = $.Deferred();
+//                setTimeout(function () {
+//                    dfd.resolve(a);
+//                }, time);
+//                return dfd.promise(PromisExtancions);
+//            });
+//        },
+//        waitForSync: function (pauser) {
+//            return this.then(function (a) {
+//                return a;
+//            });
+//        },
+//        sync: function (pauser) {
+//            return this.then(function (a) {
+//                return a;
+//            });
+//        }
+//    };
+//})();
+
+//var Chainable = function (promis) {
+//    var newDef = $.Deferred(); //we will resolve this when next is done
+//    //next line: call next with a||null for method-tolerance
+//    promis.then(function () {
+//        //newDef.resolve(arguments);
+//        newDef.resolve.apply(this, arguments);
+//    }, function () {
+//        // rejection
+//        newDef.reject.apply(this, arguments);
+//    });
+//    return newDef.promise(PromisExtancions);
+//};
+
+var _fns = {};
+
+function loop(name, fn) {
+    _fns[name] = fn;
+    var defer = Q.defer();
+    fn(defer.promise)
+        .then(function () {
+            setTimeout(function () {
+                loop(name, fn);
+            }, 1);
+        });
+    defer.resolve(fn)
+
+    //return defer.promise;
+}
+
+function loopEnd(name, fn) {
+    setTimeout(function () {
+        loop(name, _fns[name]);
+    }, 1);
+}
 
 try {
     (function () {

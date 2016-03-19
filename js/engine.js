@@ -56,7 +56,7 @@ function SQEngine() {
             EventBus.fire("log", "Compiling script");
 
             var rawWorkerCode = _worker_template.replace("[[code_body]]", newCode);
-            _code = 'importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/2.0.3/q.min.js");\n' + rawWorkerCode;
+            _code = rawWorkerCode;
 
             EventBus.fire("log", "Running script");
             EventBus.fire("playing", {});
