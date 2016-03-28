@@ -35,5 +35,5 @@ example:
 
 TODO:
 
-translate the complete api.js file
-a sync or prioritisation mechanism between loops is needed, because of the delay from the worker messageing
+- translate the complete api.js file
+- a sync or prioritisation mechanism between loops is needed, because of the delay from the worker messageing
