@@ -39,8 +39,6 @@ function isUsable(value) {
  * @param {*} value
  * @return {boolean}
  */
-4
-
 function isArray(value) {
     return isUsable(value) && Array.isArray(value); //(value instanceof Array)
 }
@@ -202,13 +200,13 @@ function cue(cue_id) {
     _reserved.send("cue", cue_id);
 }
 
-function wait(time) {
-    // if (time.is_a ? Symbol) {
-    //   sync(time);
-    // } else {
-    //   sleep(time);
-    // }
-}
+//function wait(time) {
+// if (time.is_a ? Symbol) {
+//   sync(time);
+// } else {
+//   sleep(time);
+// }
+//}
 
 // def in_thread( * opts, & block) % x {
 //     if (_reserved.current_thread + 1 == _reserved.thread_id) {
@@ -247,9 +245,9 @@ function wait(time) {
 // 440.0 * (2 * * ((n - 69) / 12.0))
 // end
 //
-// def hz_to_midi(freq)
-// (12 * (Math.log(freq * 0.0022727272727) / Math.log(2))) + 69
-// end
+function hz_to_midi(freq) {
+    return (12 * (Math.log(freq * 0.0022727272727) / Math.log(2))) + 69;
+}
 //
 // def note(n, * args)
 // return nil
@@ -323,26 +321,24 @@ function current_transpose() {
 //     _reserved.transpose = oldValue;
 // }
 // end
-//
-// def current_volume % x {
-//     return _reserved.volume;
-// }
-// end
-//
-// def set_volume!(vol)
-// max_vol = 5
-// if (vol > max_vol)
-//     new_vol = max_vol
-// elsif(vol < 0)
-// new_vol = 0
-// else
-//     new_vol = vol
-// end
-//
-// % x {
-//     _reserved.volume = new_vol;
-// }
-// end
+
+function current_volume() {
+    return _reserved.volume;
+}
+
+
+function set_volume(vol) {
+    var max_vol = 5;
+    var new_vol = 0;
+    if (vol > max_vol) {
+        new_vol = max_vol
+    } else if (vol < 0) {
+        new_vol = 0
+    } else {
+        new_vol = vol
+    }
+    _reserved.volume = new_vol;
+}
 
 function current_synth() {
     return _reserved.synth;
@@ -427,63 +423,61 @@ function use_synth_defaults(args) {
 //     _reserved.send("warn", "Sonic Quiche does not yet support recodings. Sad soup.");
 // }
 // end
-//
-// def synth(synth, * args)
-// args_h = resolve_synth_opts_hash_or_array(args)
-//
-// if args.has_key ? :
-//     note
-//     n = args_h[: note]
-//     n = n.call
-//     if n.is_a ? Proc
-//     n = note(n) unless n.is_a ? Numeric
-//     n += current_transpose
-//
-//     args_h[: note] = n
-//     end
-//
-//     _reserved_trigger_inst synth, args_h
-//     end
-//
-//     def play(n, * args)
-//     return play_chord(n, * args) if n.is_a ? (Array)
-//     n = n.call
-//     if n.is_a ? Proc
-//     return nil
-//     if (n.nil ? || n == : r || n == : rest)
-//
-//         init_args_h = {}
-//     args_h = resolve_synth_opts_hash_or_array(args)
-//
-//     if n.is_a ? Numeric# Do nothing
-//     elsif n.is_a ? Hash
-//     init_args_h = resolve_synth_opts_hash_or_array(n)
-//
-//     n = note(init_args_h[: note])
-//     return nil
-//     if n.nil ?
-//         n
-//     else
-//         n = note(n)
-//     end
-//
-//     n += current_transpose
-//
-//     args_h[: note] = n
-//
-//     synth = current_synth
-//     final_args = init_args_h.merge(args_h)
-//
-//     % x {
-//         _reserved.send("cmd", {
-//             type: "note",
-//             synth: synth,
-//             note: n,
-//             noteLength: _reserved.sleep_mul,
-//             args: final_args.map
-//         });
-//     }
-//     end
+
+/*function synth(synth, * args) {
+    args_h = resolve_synth_opts_hash_or_array(args)
+
+    if args.has_key ? :
+        note
+    n = args_h[: note]
+    n = n.call
+    if n.is_a ? Proc
+    n = note(n) unless n.is_a ? Numeric
+    n += current_transpose
+
+    args_h[: note] = n
+    end
+
+    _reserved_trigger_inst synth, args_h
+    end
+
+    function play(n, * args) {
+        return play_chord(n, * args) if n.is_a ? (Array)
+        n = n.call
+        if n.is_a ? Proc
+        return nil
+        if (n.nil ? || n == : r || n == : rest)
+
+            init_args_h = {}
+        args_h = resolve_synth_opts_hash_or_array(args)
+
+        if n.is_a ? Numeric# Do nothing
+        elsif n.is_a ? Hash
+        init_args_h = resolve_synth_opts_hash_or_array(n)
+
+        n = note(init_args_h[: note])
+        return nil
+        if n.nil ?
+            n
+        else
+            n = note(n)
+    }
+
+    n += current_transpose
+
+    args_h[: note] = n
+
+    synth = current_synth
+    final_args = init_args_h.merge(args_h)
+
+    _reserved.send("cmd", {
+        type: "note",
+        synth: synth,
+        note: n,
+        noteLength: _reserved.sleep_mul,
+        args: final_args.map
+    });
+}*/
 
 // def play_pattern(notes, * args)
 // notes.each { | note | play(note, * args);
@@ -573,90 +567,6 @@ function callAsync(func, target) {
     }, 0);
 }
 
-/**
- * when all
- *
- * uses an array of deferreds. normal when can not use an array
- * return am array with the responses op the deferreds
- */
-//jQuery.fn.whenAll = function (deferreds) {
-//    var deferred = new jQuery.Deferred();
-//    $.when.apply(jQuery, deferreds)
-//        .then(function () {
-//                var args = arguments;
-//                if (deferreds.length === 1) {
-//                    args = [arguments];
-//                }
-//                deferred.resolve(Array.prototype.slice.call(args));
-//            },
-//            function () {
-//                deferred.reject.apply(this, arguments);
-//            });
-//    return deferred;
-//};
-//
-//var PromisExtensions = (function () {
-//    return {
-//        split: function (splitString) {
-//            return this.then(function (a) {
-//                //console.log(a.split(splitString));
-//                return a.split(splitString);
-//            });
-//        },
-//        each: function (fn) {
-//            return this.then(function (a) {
-//                return _.each(a, fn);
-//            });
-//        },
-//        filter: function (fn) {
-//            return this.then(function (a) {
-//                return _.filter(a, fn);
-//            });
-//        },
-//        map: function (fn) {
-//            return this.then(function (a) {
-//                return _.map(a, fn);
-//            });
-//        },
-//        reduce: function (fn) {
-//            return this.then(function (a) {
-//                return _.reduce(a, fn);
-//            });
-//        },
-//        delay: function (time) {
-//            return this.then(function (a) {
-//                var dfd = $.Deferred();
-//                setTimeout(function () {
-//                    dfd.resolve(a);
-//                }, time);
-//                return dfd.promise(PromisExtancions);
-//            });
-//        },
-//        waitForSync: function (pauser) {
-//            return this.then(function (a) {
-//                return a;
-//            });
-//        },
-//        sync: function (pauser) {
-//            return this.then(function (a) {
-//                return a;
-//            });
-//        }
-//    };
-//})();
-
-//var Chainable = function (promis) {
-//    var newDef = $.Deferred(); //we will resolve this when next is done
-//    //next line: call next with a||null for method-tolerance
-//    promis.then(function () {
-//        //newDef.resolve(arguments);
-//        newDef.resolve.apply(this, arguments);
-//    }, function () {
-//        // rejection
-//        newDef.reject.apply(this, arguments);
-//    });
-//    return newDef.promise(PromisExtancions);
-//};
 
 var _fns = {};
 
@@ -675,9 +585,9 @@ function loop(name, fn) {
 }
 
 function loopEnd(name, fn) {
-    setTimeout(function () {
+    callAsync(function () {
         loop(name, _fns[name]);
-    }, 1);
+    });
 }
 
 try {
