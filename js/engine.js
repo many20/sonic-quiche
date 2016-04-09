@@ -75,8 +75,13 @@ function SQEngine() {
         EventBus.fire("stopped", {});
     }
 
-    $.get("api.js", function (code) {
+    $.ajax({
+        url: "api.js",
+        dataType: "text"
+    }).then(function (code, textStatus, xhr) {
         _worker_template = code;
+    }).fail(function (xhr, status, error) {
+        console.log(error);
     });
 
     EventBus.on("play", function (code) {

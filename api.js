@@ -1,3 +1,4 @@
+//importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/2.0.3/q.js");
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/1.4.1/q.min.js");
 
 //# Aggregated and modified Sonic Pi API. Original license stated below.
@@ -426,7 +427,6 @@ function use_synth_defaults(args) {
 
 /*function synth(synth, * args) {
     args_h = resolve_synth_opts_hash_or_array(args)
-
     if args.has_key ? :
         note
     n = args_h[: note]
@@ -434,27 +434,21 @@ function use_synth_defaults(args) {
     if n.is_a ? Proc
     n = note(n) unless n.is_a ? Numeric
     n += current_transpose
-
     args_h[: note] = n
     end
-
     _reserved_trigger_inst synth, args_h
     end
-
     function play(n, * args) {
         return play_chord(n, * args) if n.is_a ? (Array)
         n = n.call
         if n.is_a ? Proc
         return nil
         if (n.nil ? || n == : r || n == : rest)
-
             init_args_h = {}
         args_h = resolve_synth_opts_hash_or_array(args)
-
         if n.is_a ? Numeric# Do nothing
         elsif n.is_a ? Hash
         init_args_h = resolve_synth_opts_hash_or_array(n)
-
         n = note(init_args_h[: note])
         return nil
         if n.nil ?
@@ -462,14 +456,10 @@ function use_synth_defaults(args) {
         else
             n = note(n)
     }
-
     n += current_transpose
-
     args_h[: note] = n
-
     synth = current_synth
     final_args = init_args_h.merge(args_h)
-
     _reserved.send("cmd", {
         type: "note",
         synth: synth,
@@ -570,7 +560,7 @@ function callAsync(func, target) {
 
 var _fns = {};
 
-function loop(name, fn) {
+function loop2(name, fn) {
     _fns[name] = fn;
     var defer = Q.defer();
     fn(defer.promise)
@@ -584,11 +574,39 @@ function loop(name, fn) {
     //return defer.promise;
 }
 
-function loopEnd(name, fn) {
-    callAsync(function () {
-        loop(name, _fns[name]);
+function loop(name, fn) {
+    //console.log(name);
+    _fns[name] = fn;
+
+    var _fn = Q.async(fn)
+    _fn().then(function () {
+        setTimeout(function () {
+            loop(name, fn);
+        }, 0);
     });
 }
+
+function delay2(delay, compensate) {
+    var start = Date.now();
+    var deferred = Q.defer();
+
+    var id = setTimeout(function () {
+        var end = Date.now();
+        var actual = end - start;
+        if (compensate && actual < delay) {
+            id = setTimeout(resolveOrTryAgain, delay - actual);
+            return;
+        }
+        deferred.resolve(actual);
+    }, delay);
+
+    return deferred.promise;
+}
+
+function delay(delay) {
+    return Q.delay(delay);
+}
+
 
 try {
     (function () {

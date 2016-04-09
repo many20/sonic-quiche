@@ -1,45 +1,33 @@
-loop("loop1", (p) => {
-    return p
-        .then(() => {
+loop("loop1", function* () {
+    //print("d")
 
-            //print("d")
+    sample("drum_bass_soft", {
+        finish: 0.1
+    });
 
-            sample("drum_bass_soft", {
-                finish: 0.1
-            });
+    yield delay(500);
 
-        })
-        .delay(500)
-        .then(() => {
+    sample("drum_bass_hard", {
+        finish: 0.1
+    });
 
-            sample("drum_bass_hard", {
-                finish: 0.1
-            });
-
-        })
-        .delay(500)
+    yield delay(500);
 });
 
+/*
+loop("loop2", function* () {
+    //print("d")
 
+    sample("drum_bass_soft", {
+        finish: 0.5
+    });
 
-loop("loop2", (p) => {
-    return p
-        .then(() => {
+    yield delay(1000);
 
-            //print("d")
+    sample("drum_bass_hard", {
+        finish: 0.5
+    });
 
-            sample("drum_bass_soft", {
-                finish: 0.5
-            });
-
-        })
-        .delay(1000)
-        .then(() => {
-
-            sample("drum_bass_hard", {
-                finish: 0.5
-            });
-
-        })
-        .delay(1000)
+    yield delay(1000);
 });
+*/

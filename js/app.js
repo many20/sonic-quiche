@@ -10,7 +10,8 @@ var editor = new SQEditor({
     play_id: "play",
     stop_id: "stop",
     example_scripts: [
-        "examples/test.js"
+        "examples/test.js",
+        "examples/test2.js"
 //		"examples/elec_blip.rb",
 //		"examples/collapsing_amen.rb",
 //		"examples/thread_test.rb",
