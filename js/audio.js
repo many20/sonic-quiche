@@ -53,34 +53,34 @@ function SQAudio() {
 
     function handleCommand(thread_id, cmd) {
         switch (cmd.type) {
-        case "sample":
-            var rate = cmd.args.rate || 1.0;
-            var start = cmd.args.start || 0.0;
-            if (start < 0.0) {
-                start = 0.0;
-            }
-            var finish = cmd.args.finish || -1;
-            if (finish < 0.0) {
-                finish = 0.0;
-            }
+            case "sample":
+                var rate = cmd.args.rate || 1.0;
+                var start = cmd.args.start || 0.0;
+                if (start < 0.0) {
+                    start = 0.0;
+                }
+                var finish = cmd.args.finish || -1;
+                if (finish < 0.0) {
+                    finish = 0.0;
+                }
 
-            // The Web Audio API appears to be unable to handle negative rates so we don't support it for now
-            if (rate <= 0) {
-                EventBus.fire("error", "Browsers don't support playing samples backwards yet. Sad soup.");
-            } else {
-                playSample(cmd.node_id, cmd.sample, threads[thread_id].time, rate, start, finish);
-            }
-            break;
-        case "note":
-            playNote(cmd.synth, cmd.note, cmd.noteLength, threads[thread_id].time, cmd.args);
-            break;
-        case "sleep":
-            var newThreadEndTime = threads[thread_id].time + cmd.length;
-            threads[thread_id].time = newThreadEndTime;
-            break;
-        default:
-            EventBus.fire("error", "Unknown audio command " + cmd.type + " [thread " + thread_id + "]");
-            break;
+                // The Web Audio API appears to be unable to handle negative rates so we don't support it for now
+                if (rate <= 0) {
+                    EventBus.fire("error", "Browsers don't support playing samples backwards yet. Sad soup.");
+                } else {
+                    playSample(cmd.node_id, cmd.sample, threads[thread_id].time, rate, start, finish);
+                }
+                break;
+            case "note":
+                playNote(cmd.synth, cmd.note, cmd.noteLength, threads[thread_id].time, cmd.args);
+                break;
+            case "sleep":
+                var newThreadEndTime = threads[thread_id].time + cmd.length;
+                threads[thread_id].time = newThreadEndTime;
+                break;
+            default:
+                EventBus.fire("error", "Unknown audio command " + cmd.type + " [thread " + thread_id + "]");
+                break;
         }
     }
 
