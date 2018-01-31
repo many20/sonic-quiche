@@ -1,5 +1,10 @@
 //importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/2.0.3/q.js");
-importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/1.4.1/q.min.js");
+//importScripts("https://cdnjs.cloudflare.com/ajax/libs/q.js/1.4.1/q.min.js");
+
+function importScriptsWithBaseUrl(baseUrl) {
+    importScripts(baseUrl + '/libs/q.min.js');
+} 
+
 
 //# Aggregated and modified Sonic Pi API. Original license stated below.
 //#--
@@ -77,7 +82,8 @@ var _reserved = {
                 thread_id: _reserved.thread_id
             });
         }
-    }
+    },
+    isImportScripts: false
 };
 
 //def resolve_synth_opts_hash_or_array(opts)
@@ -539,6 +545,20 @@ function sample(name, args_h) {
 //     }
 // }
 
+onmessage = function(event) {
+    _reserved.thread_id = event.data.thread_id;
+    
+    //console.log(event);
+    
+    if (_reserved.isImportScripts === false) {
+        //https://stackoverflow.com/questions/22172426/using-importsscripts-within-blob-in-a-karma-environment
+        importScriptsWithBaseUrl(event.data.baseUrl);
+        _reserved.isImportScripts = true;
+    }
+
+    start();
+};
+
 /**
  * call an function asyncron
  * use an timer to let the eventloop invoke it.
@@ -560,7 +580,9 @@ function callAsync(func, target) {
 
 var _fns = {};
 
-function loop2(name, fn) {
+function loop(name, fn) {
+    //debugger;
+    //console.log(name);
     _fns[name] = fn;
     var defer = Q.defer();
     fn(defer.promise)
@@ -574,14 +596,27 @@ function loop2(name, fn) {
     //return defer.promise;
 }
 
-function loop(name, fn) {
+function loopGenerator(name, fn) {
+    //debugger;
     //console.log(name);
     _fns[name] = fn;
 
     var _fn = Q.async(fn)
     _fn().then(function () {
         setTimeout(function () {
-            loop(name, fn);
+            loopAsync(name, fn);
+        }, 0);
+    });
+}
+
+function loopAsync(name, fn) {
+    //debugger;
+    //console.log(name);
+    _fns[name] = fn;
+
+    fn().then(function () {
+        setTimeout(function () {
+            loopAsync(name, fn);
         }, 0);
     });
 }
@@ -607,7 +642,7 @@ function delay(delay) {
     return Q.delay(delay);
 }
 
-
+function start() {
 try {
     (function () {
         [[code_body]]
@@ -615,3 +650,4 @@ try {
 } catch (ex) {
     print("code_body error :" + ex);
 }
+};

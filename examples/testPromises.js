@@ -1,4 +1,4 @@
-loop2("loop1", (p) => {
+loop("loop1", (p) => {
     return p
         .then(() => {
 
@@ -22,7 +22,7 @@ loop2("loop1", (p) => {
 
 
 /*
-loop2("loop2", (p) => {
+loop("loop2", (p) => {
     return p
         .then(() => {
 

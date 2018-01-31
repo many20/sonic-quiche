@@ -43,7 +43,8 @@ function SQEngine() {
             handleEvent(e.data);
         };
         _workers[id].postMessage({
-            thread_id: id
+            thread_id: id,
+            baseUrl: location.origin
         });
     }
 

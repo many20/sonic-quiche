@@ -1,4 +1,4 @@
-loop("loop1", function* () {
+loopGenerator("loop1", function* () {
     //print("d")
 
     sample("drum_bass_soft", {
@@ -15,7 +15,7 @@ loop("loop1", function* () {
 });
 
 /*
-loop("loop2", function* () {
+loopGenerator("loop2", function* () {
     //print("d")
 
     sample("drum_bass_soft", {
